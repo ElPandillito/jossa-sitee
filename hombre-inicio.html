@@ -5,39 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Inicio | Hombre | JOSSA ATHLETICS</title>
   <link rel="stylesheet" href="outfit.css" />
-  <style>
-    .size-picker{
-      margin-top:16px;
-      padding:12px 14px;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:12px;
-      background: rgba(255,255,255,.04);
-      max-width:320px;
-    }
-    .size-picker__label{
-      font-size:14px;
-      opacity:.8;
-      margin-bottom:8px;
-    }
-    .size-picker__options{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-    .size-btn{
-      padding:10px 14px;
-      border-radius:10px;
-      border:1px solid #444;
-      background:#0d0d0d;
-      color:#fff;
-      cursor:pointer;
-      transition:all .15s ease;
-      letter-spacing:.04em;
-      font-weight:700;
-    }
-    .size-btn:hover{ border-color:#888; transform:translateY(-1px); }
-    .size-btn.is-active{ background:#fff; color:#0d0d0d; border-color:#fff; box-shadow:0 8px 26px rgba(0,0,0,.35); }
-  </style>
 </head>
 
 <body>
@@ -57,27 +24,33 @@
       <div>
         <h1>INICIO</h1>
         <p>Drop base de la linea hombre. Fit oversize, logo frontal limpio.</p>
-        <div class="size-picker" data-selected="M">
-          <div class="size-picker__label">Talla seleccionada: <span class="size-picker__value">M</span></div>
-          <div class="size-picker__options">
-            <button class="size-btn" data-size="S">S</button>
-            <button class="size-btn" data-size="M">M</button>
-            <button class="size-btn" data-size="G">G</button>
-            <button class="size-btn" data-size="XL">XL</button>
+        <div class="size-row">
+          <div class="size-picker" data-selected="M">
+            <div class="size-picker__label">Talla seleccionada: <span class="size-picker__value">M</span></div>
+            <div class="size-picker__options">
+              <button class="size-btn" data-size="C">C</button>
+              <button class="size-btn" data-size="M">M</button>
+              <button class="size-btn" data-size="G">G</button>
+              <button class="size-btn" data-size="XL">XL</button>
+            </div>
           </div>
+          <a class="size-guide-btn" href="#guia-tallas">Guía de tallas</a>
+        </div>
+        <div class="cart-actions">
+          <button class="btn btn-primary add-to-cart" data-product="INICIO" data-image="images/hombre/inicio-01.jpg">Añadir al carrito</button>
         </div>
         <div class="page-actions" style="margin-top:14px;">
-          <a class="btn btn-primary" href="#galeria">Ver galeria</a>
+          <a class="btn btn-primary" href="#galeria">Ver galería</a>
           <a class="btn btn-ghost" href="hombre.html">Volver a Hombre</a>
         </div>
       </div>
 
       <div class="page-actions">
-          <a class="btn btn-primary"
+        <a class="btn btn-primary"
            target="_blank" rel="noopener"
-           href="https://wa.me/523332510644?text=Hola%20JOSSA%20ATHLETICS%20%F0%9F%91%8B%0AQuiero%20comprar%20el%20outfit%20INICIO.%0A%0ADatos:%0A1)%20Nombre%20completo:%0A2)%20Talla:%0A3)%20Ciudad:%0A4)%20Direcci%C3%B3n%20de%20env%C3%ADo:%0A5)%20M%C3%A9todo%20de%20pago:">
-            Comprar por WhatsApp
-          </a>
+           href="https://wa.me/523332510644?text=Hola%20JOSSA%20ATHLETICS%20%F0%9F%91%8B%0AQuiero%20comprar%20el%20outfit%20INICIO.%0A%0ADatos:%0A1)%20Nombre%20completo:%0A2)%20Talla:%0A3)%20Ciudad:%0A4)%20Dirección%20de%20envío:%0A5)%20Método%20de%20pago:">
+          Comprar por WhatsApp
+        </a>
       </div>
     </div>
   </section>
@@ -106,6 +79,54 @@
     </div>
   </section>
 
+  <section class="size-guide" id="guia-tallas">
+    <div class="wrap">
+      <div class="gallery-head">
+        <h2>GUÍA DE TALLAS</h2>
+        <p>Medidas en centímetros para la playera oversize 220G (mismas que Dark Legacy).</p>
+      </div>
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h4>C</h4>
+          <ul>
+            <li><span>Largo</span><span>69.5</span></li>
+            <li><span>Ancho</span><span>53.5</span></li>
+            <li><span>Hombro</span><span>16</span></li>
+            <li><span>Manga</span><span>26</span></li>
+          </ul>
+        </div>
+        <div class="guide-card">
+          <h4>M</h4>
+          <ul>
+            <li><span>Largo</span><span>73</span></li>
+            <li><span>Ancho</span><span>57</span></li>
+            <li><span>Hombro</span><span>16.5</span></li>
+            <li><span>Manga</span><span>26.5</span></li>
+          </ul>
+        </div>
+        <div class="guide-card">
+          <h4>G</h4>
+          <ul>
+            <li><span>Largo</span><span>75.5</span></li>
+            <li><span>Ancho</span><span>58</span></li>
+            <li><span>Hombro</span><span>17</span></li>
+            <li><span>Manga</span><span>28</span></li>
+          </ul>
+        </div>
+        <div class="guide-card">
+          <h4>XL</h4>
+          <ul>
+            <li><span>Largo</span><span>77.5</span></li>
+            <li><span>Ancho</span><span>60</span></li>
+            <li><span>Hombro</span><span>18.5</span></li>
+            <li><span>Manga</span><span>29.5</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="guide-note">Corte oversize; si dudas entre dos tallas, elige la más pequeña para un fit menos suelto.</p>
+    </div>
+  </section>
+
   <footer class="footer">
     <div class="wrap footer-inner">
       <div class="footer-left">
@@ -119,24 +140,6 @@
     </div>
   </footer>
 
-  <script>
-    (function initSizePickers(){
-      document.querySelectorAll('.size-picker').forEach(picker => {
-        const buttons = picker.querySelectorAll('.size-btn');
-        const output = picker.querySelector('.size-picker__value');
-        let selected = picker.dataset.selected || 'M';
-
-        const setSelected = (size) => {
-          selected = size;
-          output.textContent = size;
-          buttons.forEach(btn => btn.classList.toggle('is-active', btn.dataset.size === size));
-          console.log('Talla seleccionada (INICIO):', size);
-        };
-
-        buttons.forEach(btn => btn.addEventListener('click', () => setSelected(btn.dataset.size)));
-        setSelected(selected);
-      });
-    })();
-  </script>
+  <script src="cart.js"></script>
 </body>
 </html>
