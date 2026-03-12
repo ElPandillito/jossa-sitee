@@ -28,12 +28,19 @@
         <h1>DARK LEGACY MUJER</h1>
         <p>Poder, presencia y enfoque. Una silueta que resalta en entrenamiento y lifestyle.</p>
         <p class="price-tag">Precio: $499</p>
+        <div class="color-row">
+          <div class="color-selected">Color seleccionado: <strong id="dark-legacy-mujer-color-value">Rosa</strong></div>
+          <div class="aura-colors" role="tablist" aria-label="Colores de DARK LEGACY MUJER">
+            <button class="aura-color aura-color--rosa is-active" type="button" data-color="rosa">Rosa</button>
+            <button class="aura-color aura-color--blanco" type="button" data-color="blanco">Blanco</button>
+          </div>
+        </div>
 
         <div class="size-row">
           <div class="size-picker" data-selected="M">
             <div class="size-picker__label">Talla seleccionada: <span class="size-picker__value">M</span></div>
             <div class="size-picker__options">
-              <button class="size-btn" data-size="C">C</button>
+              <button class="size-btn" data-size="CH">CH</button>
               <button class="size-btn" data-size="M">M</button>
               <button class="size-btn" data-size="G">G</button>
               <button class="size-btn" data-size="XL">XL</button>
@@ -42,7 +49,7 @@
           <a class="size-guide-btn" href="#guia-tallas">Guía de tallas</a>
         </div>
         <div class="cart-actions">
-          <button class="btn btn-primary add-to-cart" data-product="DARK LEGACY MUJER" data-image="images/ella/dark-legacy-01.jpg">Añadir al carrito</button>
+          <button class="btn btn-primary add-to-cart" data-base-product="DARK LEGACY MUJER" data-product="DARK LEGACY MUJER ROSA" data-image="images/ella/dark-legacy-02.jpg">Añadir al carrito</button>
         </div>
 
         <div class="page-actions" style="margin-top:14px;">
@@ -54,6 +61,7 @@
       <div class="page-actions">
         <!-- WHATSAPP COMPRA -->
         <a class="btn btn-primary"
+           id="dark-legacy-mujer-buy-now"
            target="_blank" rel="noopener"
            href="https://wa.me/523332510644?text=Hola%20JOSSA%20ATHLETICS%20%F0%9F%91%8B%0AQuiero%20comprar%20el%20outfit%20DARK%20LEGACY%20MUJER.%0A%0ADatos:%0A1)%20Nombre%20completo:%0A2)%20Talla%20top:%0A3)%20Talla%20bottom:%0A4)%20Ciudad:%0A5)%20Direcci%C3%B3n%20de%20env%C3%ADo:%0A6)%20M%C3%A9todo%20de%20pago:">
           Comprar por WhatsApp
@@ -98,7 +106,7 @@
       </div>
       <div class="guide-grid">
         <div class="guide-card">
-          <h4>C</h4>
+          <h4>CH</h4>
           <ul>
             <li><span>Largo</span><span>69.5</span></li>
             <li><span>Ancho</span><span>53.5</span></li>
@@ -151,6 +159,143 @@
     </div>
   </footer>
 
+  <script>
+    (() => {
+      const colorButtons = Array.from(document.querySelectorAll('.aura-color[data-color]'));
+      const colorValue = document.getElementById('dark-legacy-mujer-color-value');
+      const addToCart = document.querySelector('.add-to-cart[data-base-product]');
+      const buyNow = document.getElementById('dark-legacy-mujer-buy-now');
+      const galleryGrid = document.querySelector('.gallery-grid');
+      if (!colorButtons.length) return;
+
+      let colorRequestId = 0;
+
+      const colorMeta = {
+        rosa: {
+          label: 'Rosa',
+          prefixes: ['images/ella/dark-legacy-mujer-rosa-', 'images/ella/dark-legacy-rosa-'],
+          fallback: ['images/ella/dark-legacy-02.jpg', 'images/ella/dark-legacy-01.jpg']
+        },
+        blanco: {
+          label: 'Blanco',
+          prefixes: ['images/ella/dark-legacy-mujer-blanco-', 'images/ella/dark-legacy-blanco-'],
+          fallback: ['images/ella/dark-legacy-03.jpg']
+        }
+      };
+
+      const imageExists = (src) =>
+        new Promise((resolve) => {
+          const probe = new Image();
+          probe.onload = () => resolve(true);
+          probe.onerror = () => resolve(false);
+          probe.src = src;
+        });
+
+      const findImageByBase = async (basePath) => {
+        const extensions = ['jpg', 'jpeg', 'png', 'webp'];
+        for (const ext of extensions) {
+          const candidate = `${basePath}.${ext}`;
+          // eslint-disable-next-line no-await-in-loop
+          if (await imageExists(candidate)) return candidate;
+        }
+        return '';
+      };
+
+      const resolveImagesFromPrefix = async (prefix) => {
+        const images = [];
+        let misses = 0;
+        for (let index = 1; index <= 40; index += 1) {
+          const base = `${prefix}${String(index).padStart(2, '0')}`;
+          // eslint-disable-next-line no-await-in-loop
+          const found = await findImageByBase(base);
+          if (found) {
+            images.push(found);
+            misses = 0;
+          } else {
+            misses += 1;
+            if (misses >= 3 && images.length) break;
+          }
+        }
+        return images;
+      };
+
+      const resolveColorImages = async (key) => {
+        const meta = colorMeta[key] || colorMeta.rosa;
+        const found = [];
+
+        for (const prefix of meta.prefixes || []) {
+          // eslint-disable-next-line no-await-in-loop
+          const resolved = await resolveImagesFromPrefix(prefix);
+          found.push(...resolved);
+        }
+
+        const unique = Array.from(new Set(found));
+        if (unique.length) return unique;
+
+        const fallback = [];
+        for (const path of meta.fallback || []) {
+          // eslint-disable-next-line no-await-in-loop
+          if (await imageExists(path)) fallback.push(path);
+        }
+        return fallback;
+      };
+
+      const renderGallery = (images, label) => {
+        if (!galleryGrid) return;
+        if (!images.length) {
+          galleryGrid.innerHTML = '<div class="aura-loading">Agrega fotos para este color en images/ella.</div>';
+          return;
+        }
+        galleryGrid.innerHTML = images.map((path, idx) => `
+          <div class="photo">
+            <a href="${path}" target="_blank" rel="noopener">
+              <img src="${path}" alt="Dark Legacy Mujer ${label} ${String(idx + 1).padStart(2, '0')}">
+            </a>
+          </div>
+        `).join('');
+      };
+
+      const setColor = async (key) => {
+        const currentRequestId = ++colorRequestId;
+        const meta = colorMeta[key] || colorMeta.rosa;
+        if (colorValue) colorValue.textContent = meta.label;
+        colorButtons.forEach(button => button.classList.toggle('is-active', button.dataset.color === key));
+
+        const images = await resolveColorImages(key);
+        if (currentRequestId !== colorRequestId) return;
+
+        renderGallery(images, meta.label);
+        const primaryImage = images[0] || '';
+
+        if (addToCart) {
+          addToCart.dataset.product = `${addToCart.dataset.baseProduct} ${meta.label.toUpperCase()}`;
+          if (primaryImage) addToCart.dataset.image = primaryImage;
+        }
+        if (buyNow) {
+          const msg = [
+            'Hola JOSSA ATHLETICS 👋',
+            `Quiero comprar el outfit DARK LEGACY MUJER (${meta.label.toUpperCase()}).`,
+            '',
+            'Datos:',
+            '1) Nombre completo:',
+            '2) Talla top:',
+            '3) Talla bottom:',
+            '4) Ciudad:',
+            '5) Dirección de envío:',
+            '6) Método de pago:'
+          ].join('\n');
+          buyNow.href = `https://wa.me/523332510644?text=${encodeURIComponent(msg)}`;
+        }
+      };
+
+      colorButtons.forEach(button => {
+        button.addEventListener('click', () => setColor(button.dataset.color || 'rosa'));
+      });
+
+      const initialColor = colorButtons.find(button => button.classList.contains('is-active'))?.dataset.color || 'rosa';
+      setColor(initialColor);
+    })();
+  </script>
   <script src="cart.js"></script>
 
 </body>

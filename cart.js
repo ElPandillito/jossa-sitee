@@ -1,8 +1,10 @@
 (() => {
   const CART_KEY = 'jossa_cart_v1';
   const CODE_KEY = 'jossa_cart_code';
+  const DISCOUNT_RATE = 0.10;
+  const VALID_DISCOUNT_CODES = new Set(['WANDAFIT10', 'KAREN10', 'KARENG']);
   const PRICE_BY_PRODUCT = {
-    'INICIO': 699,
+    'INICIO': 599,
     'DARK LEGACY': 499,
     'DARK LEGACY MUJER': 499,
     'ASCENSO': 189,
@@ -18,6 +20,7 @@
   let ui = {};
   let animatedTotal = 0;
   let totalAnimationFrame = null;
+  let codeAnimationTimeout = null;
 
   const normalizeProductName = (name = '') =>
     name
@@ -27,20 +30,38 @@
       .toUpperCase();
 
   const parsePriceValue = (text = '') => {
-    const digits = String(text).replace(/[^\d]/g, '');
-    return digits ? Number(digits) : 0;
+    const matches = String(text).match(/\d[\d.,]*/g);
+    if (!matches?.length) return 0;
+    const values = matches
+      .map(value => Number(String(value).replace(/[^\d]/g, '')))
+      .filter(value => Number.isFinite(value) && value > 0);
+    if (!values.length) return 0;
+    // When marketing shows old/new prices together, use the lowest one.
+    return Math.min(...values);
   };
 
   const getPriceByName = (name = '') => PRICE_BY_PRODUCT[normalizeProductName(name)] || 0;
   const formatMoney = (value = 0) => `$${Math.round(value).toLocaleString('es-MX')} MXN`;
+  const formatDiscountMoney = (value = 0) => `-${formatMoney(value)}`;
+  const normalizeDiscountCode = (code = '') => String(code).trim().toUpperCase().replace(/\s+/g, '');
+  const isValidDiscountCode = (code = '') => VALID_DISCOUNT_CODES.has(normalizeDiscountCode(code));
   const getUnitPrice = (item) => Number(item?.unitPrice) || getPriceByName(item?.name);
   const getCartSubtotal = () => cart.reduce((acc, item) => acc + (getUnitPrice(item) * item.qty), 0);
+  const getCartDiscount = (subtotal = getCartSubtotal()) => (
+    isValidDiscountCode(discountCode) ? subtotal * DISCOUNT_RATE : 0
+  );
+  const getCartTotal = (subtotal = getCartSubtotal()) => Math.max(0, subtotal - getCartDiscount(subtotal));
 
   const load = () => {
     try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || []; }
     catch { cart = []; }
-    cart = cart.map(item => ({ ...item, unitPrice: getUnitPrice(item) }));
-    try { discountCode = localStorage.getItem(CODE_KEY) || ''; }
+    cart = cart.map((item) => {
+      const mappedPrice = getPriceByName(item?.name);
+      const isInicio = normalizeProductName(item?.name) === 'INICIO';
+      const unitPrice = (isInicio && mappedPrice) ? mappedPrice : getUnitPrice(item);
+      return { ...item, unitPrice };
+    });
+    try { discountCode = normalizeDiscountCode(localStorage.getItem(CODE_KEY) || ''); }
     catch { discountCode = ''; }
   };
   const save = () => localStorage.setItem(CART_KEY, JSON.stringify(cart));
@@ -74,13 +95,22 @@
             <input id="cart-code-input" type="text" placeholder="Ingresa tu código" value="">
             <button class="cart-apply">Aplicar</button>
           </div>
-          <div class="cart-code-hint">Se validará al cerrar pedido por WhatsApp.</div>
+          <div class="cart-code-hint">Ingresa tu código de descuento.</div>
+          <div class="cart-code-status" aria-live="polite"></div>
         </div>
 
         <div class="cart-summary">
           <div class="summary-line">
             <span>Artículos</span>
             <span class="summary-items">0</span>
+          </div>
+          <div class="summary-line">
+            <span>Subtotal</span>
+            <span class="summary-subtotal">$0 MXN</span>
+          </div>
+          <div class="summary-line">
+            <span>Descuento (10%)</span>
+            <span class="summary-discount">-$0 MXN</span>
           </div>
           <div class="summary-line summary-line-total">
             <span>Total</span>
@@ -127,7 +157,10 @@
       close: root.querySelector('.cart-close'),
       codeInput: root.querySelector('#cart-code-input'),
       codeApply: root.querySelector('.cart-apply'),
+      codeStatus: root.querySelector('.cart-code-status'),
       summaryItems: root.querySelector('.summary-items'),
+      summarySubtotal: root.querySelector('.summary-subtotal'),
+      summaryDiscount: root.querySelector('.summary-discount'),
       summaryTotal: root.querySelector('.summary-total'),
       summaryCode: root.querySelector('.summary-code'),
     };
@@ -138,11 +171,49 @@
     });
     ui.close.addEventListener('click', () => root.classList.remove('is-open'));
     ui.checkout.addEventListener('click', checkout);
-    ui.codeApply.addEventListener('click', () => {
-      discountCode = (ui.codeInput.value || '').trim();
+
+    const applyDiscountCode = () => {
+      discountCode = normalizeDiscountCode(ui.codeInput?.value || '');
       saveCode();
-      render();
+      const status = !discountCode ? 'idle' : (isValidDiscountCode(discountCode) ? 'valid' : 'invalid');
+      render({ codeStatus: status, animateCodeStatus: Boolean(discountCode) });
+    };
+
+    ui.codeApply.addEventListener('click', applyDiscountCode);
+    ui.codeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        applyDiscountCode();
+      }
     });
+  };
+
+  const animateCodeButton = (state) => {
+    if (!ui.codeApply || state === 'idle') return;
+    if (codeAnimationTimeout) clearTimeout(codeAnimationTimeout);
+    ui.codeApply.classList.remove('is-verified', 'is-invalid');
+    // Force reflow so animation can replay for repeated attempts.
+    void ui.codeApply.offsetWidth;
+    ui.codeApply.classList.add(state === 'valid' ? 'is-verified' : 'is-invalid');
+    codeAnimationTimeout = setTimeout(() => {
+      ui.codeApply.classList.remove('is-verified', 'is-invalid');
+      codeAnimationTimeout = null;
+    }, 900);
+  };
+
+  const updateCodeStatus = (state = 'idle', { animate = false } = {}) => {
+    if (!ui.codeStatus) return;
+    ui.codeStatus.classList.remove('is-valid', 'is-invalid');
+    if (state === 'valid') {
+      ui.codeStatus.classList.add('is-valid');
+      ui.codeStatus.textContent = 'Codigo verificado. Se aplico 10% de descuento.';
+    } else if (state === 'invalid') {
+      ui.codeStatus.classList.add('is-invalid');
+      ui.codeStatus.textContent = 'Codigo invalido.';
+    } else {
+      ui.codeStatus.textContent = '';
+    }
+    if (animate) animateCodeButton(state);
   };
 
   const animateSummaryTotal = (target, { instant = false } = {}) => {
@@ -184,17 +255,27 @@
     totalAnimationFrame = requestAnimationFrame(frame);
   };
 
-  const render = ({ instantTotal = false } = {}) => {
+  const render = ({ instantTotal = false, codeStatus = null, animateCodeStatus = false } = {}) => {
     if (!ui.items) return;
     const count = cart.reduce((acc, item) => acc + item.qty, 0);
     const subtotal = getCartSubtotal();
+    const discountAmount = getCartDiscount(subtotal);
+    const total = getCartTotal(subtotal);
+    const resolvedCodeStatus = codeStatus || (!discountCode ? 'idle' : (isValidDiscountCode(discountCode) ? 'valid' : 'invalid'));
     const countEl = ui.toggle.querySelector('.cart-count');
     if (countEl) countEl.textContent = count;
     if (!cart.length) {
       ui.items.innerHTML = `<p class="cart-empty">Tu carrito está vacío.</p>`;
       if (ui.summaryItems) ui.summaryItems.textContent = '0';
+      if (ui.summarySubtotal) ui.summarySubtotal.textContent = formatMoney(0);
+      if (ui.summaryDiscount) ui.summaryDiscount.textContent = formatDiscountMoney(0);
       animateSummaryTotal(0, { instant: instantTotal });
-      if (ui.summaryCode) ui.summaryCode.textContent = '—';
+      if (ui.summaryCode) {
+        ui.summaryCode.textContent = discountCode
+          ? (isValidDiscountCode(discountCode) ? discountCode : `${discountCode} (invalido)`)
+          : '—';
+      }
+      updateCodeStatus(resolvedCodeStatus, { animate: animateCodeStatus });
       return;
     }
     ui.items.innerHTML = cart.map((item, idx) => `
@@ -220,8 +301,15 @@
 
     if (ui.codeInput) ui.codeInput.value = discountCode;
     if (ui.summaryItems) ui.summaryItems.textContent = `${count}`;
-    animateSummaryTotal(subtotal, { instant: instantTotal });
-    if (ui.summaryCode) ui.summaryCode.textContent = discountCode ? discountCode : '—';
+    if (ui.summarySubtotal) ui.summarySubtotal.textContent = formatMoney(subtotal);
+    if (ui.summaryDiscount) ui.summaryDiscount.textContent = formatDiscountMoney(discountAmount);
+    animateSummaryTotal(total, { instant: instantTotal });
+    if (ui.summaryCode) {
+      ui.summaryCode.textContent = discountCode
+        ? (isValidDiscountCode(discountCode) ? discountCode : `${discountCode} (invalido)`)
+        : '—';
+    }
+    updateCodeStatus(resolvedCodeStatus, { animate: animateCodeStatus });
   };
 
   const getPriceFromButton = (btn, productName) => {
@@ -275,19 +363,22 @@
     const lines = cart.map((item, i) =>
       `${i + 1}) ${item.name} | Talla: ${item.size} | Cant: ${item.qty} | ${formatMoney(getUnitPrice(item))} c/u`);
     const subtotal = getCartSubtotal();
+    const discountAmount = getCartDiscount(subtotal);
+    const total = getCartTotal(subtotal);
     const msg = [
       'Hola JOSSA ATHLETICS 👋',
       'Pedido desde el sitio:',
       ...lines,
       '',
-      `Total estimado: ${formatMoney(subtotal)}`,
-      discountCode ? `Código: ${discountCode}` : '',
+      `Subtotal estimado: ${formatMoney(subtotal)}`,
+      discountAmount ? `Descuento (10%): ${formatDiscountMoney(discountAmount)}` : '',
+      `Total estimado: ${formatMoney(total)}`,
+      (discountCode && isValidDiscountCode(discountCode)) ? `Código: ${discountCode}` : '',
       '',
       'Envío:',
       'Nombre:',
       'Ciudad:',
-      'Dirección:',
-      'Método de pago:'
+      'Dirección:'
     ].join('%0A');
     const url = `https://wa.me/523332510644?text=${msg}`;
     window.open(url, '_blank');

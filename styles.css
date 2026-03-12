@@ -278,6 +278,9 @@ img{ display:block; max-width:100%; }
   grid-template-columns: repeat(3, 1fr);
   gap:18px;
 }
+.featured-grid{
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 .card{
   border:1px solid rgba(255,255,255,.10);
   background: rgba(255,255,255,.04);
@@ -431,6 +434,30 @@ img{ display:block; max-width:100%; }
   text-transform:uppercase;
   box-shadow: 0 8px 24px rgba(255,159,26,.35);
   transition: transform .18s ease, box-shadow .18s ease;
+}
+.price-sale{
+  gap:6px;
+  padding:8px 10px;
+}
+.price-old{
+  text-decoration:line-through;
+  opacity:.72;
+  font-size:.82em;
+}
+.price-now{
+  font-weight:950;
+}
+.price-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:2px 8px;
+  border-radius:999px;
+  background:#111;
+  color:#fff;
+  font-size:.62rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
 }
 .card:hover .price{
   transform: translateY(-1px) scale(1.02);
