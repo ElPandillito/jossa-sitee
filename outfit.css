@@ -67,7 +67,19 @@
 .aura-color--blanco{ --swatch:#f5f5f5; }
 .aura-color--amarillo{ --swatch:#ffd43b; }
 .aura-color--gris{ --swatch:#9ca3af; }
+.aura-color--azul-aqua{ --swatch:#3ddad7; }
+.aura-color--azul{ --swatch:#3b82f6; }
 .aura-color--rosa{ --swatch:#f472b6; }
+.aura-color--rosa-palo{ --swatch:#d8a7b1; }
+.aura-color--negro{ --swatch:#111111; }
+.color-row--spacious{
+  gap:14px;
+  margin-top:18px;
+  margin-bottom:8px;
+}
+.color-row--spacious .aura-colors{
+  gap:12px;
+}
 .aura-color:hover{
   transform:translateY(-1px);
   border-color:rgba(255,255,255,.4);

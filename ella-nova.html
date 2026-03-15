@@ -27,16 +27,19 @@
       <div>
         <h1>SHORT AURA</h1>
         <p>Shorts de mujer de tiro alto: compresión cómoda, ajuste firme y movimiento libre.</p>
-        <p>Disponible en colores: amarillo, gris, rosa y blanco.</p>
+        <p>Disponible en colores: azul aqua, amarillo, blanco, rosa, rosa palo, negro y gris.</p>
         <p class="price-tag">Precio: $269</p>
 
-        <div class="color-row">
-          <div class="color-selected">Color seleccionado: <strong id="aura-color-value">Blanco</strong></div>
+        <div class="color-row color-row--spacious">
+          <div class="color-selected">Color seleccionado: <strong id="aura-color-value">Rosa</strong></div>
           <div class="aura-colors" role="tablist" aria-label="Colores del Short AURA">
-            <button class="aura-color aura-color--blanco is-active" type="button" data-color="blanco">Blanco</button>
+            <button class="aura-color aura-color--azul-aqua" type="button" data-color="azul-aqua">Azul Aqua</button>
             <button class="aura-color aura-color--amarillo" type="button" data-color="amarillo">Amarillo</button>
+            <button class="aura-color aura-color--blanco" type="button" data-color="blanco">Blanco</button>
+            <button class="aura-color aura-color--rosa is-active" type="button" data-color="rosa">Rosa</button>
+            <button class="aura-color aura-color--rosa-palo" type="button" data-color="rosa-palo">Rosa Palo</button>
+            <button class="aura-color aura-color--negro" type="button" data-color="negro">Negro</button>
             <button class="aura-color aura-color--gris" type="button" data-color="gris">Gris</button>
-            <button class="aura-color aura-color--rosa" type="button" data-color="rosa">Rosa</button>
           </div>
         </div>
 
@@ -51,10 +54,10 @@
           <a class="size-guide-btn" href="#guia-tallas">Guía de tallas</a>
         </div>
         <div class="stock-alert" id="aura-stock-alert" hidden aria-live="polite">
-          No hay stock disponible en talla S para el color blanco.
+          La talla S en color blanco está agotada.
         </div>
         <div class="cart-actions">
-          <button class="btn btn-primary add-to-cart" data-product="SHORT AURA BLANCO" data-image="images/ella/aura-blanco-01.jpg">Añadir al carrito</button>
+          <button class="btn btn-primary add-to-cart" data-product="SHORT AURA ROSA" data-image="images/ella/aura-rosa-01.jpg">Añadir al carrito</button>
         </div>
 
         <div class="page-actions" style="margin-top:14px;">
@@ -78,13 +81,13 @@
     <div class="wrap">
       <div class="gallery-head">
         <h2>GALERÍA</h2>
-        <p id="aura-gallery-copy">Short AURA en color blanco. Fit de compresión y look clean para entrenamiento y lifestyle.</p>
+        <p id="aura-gallery-copy">Short AURA en color rosa. Fit de compresión y look clean para entrenamiento y lifestyle.</p>
       </div>
 
       <div class="nova-gallery" id="nova-gallery">
         <div class="nova-main photo">
-          <a id="nova-main-link" href="images/ella/aura-blanco-01.jpg" target="_blank" rel="noopener">
-            <img id="nova-main-image" class="face-focus" src="images/ella/aura-blanco-01.jpg" alt="Short AURA Blanco 01" style="object-position:center 12%;" onerror="this.onerror=null;this.src='images/ella/dark-legacy-01.jpg';">
+          <a id="nova-main-link" href="images/ella/aura-rosa-01.jpg" target="_blank" rel="noopener">
+            <img id="nova-main-image" class="face-focus" src="images/ella/aura-rosa-01.jpg" alt="Short AURA Rosa 01" style="object-position:center 12%;" onerror="this.onerror=null;this.src='images/ella/aura-rosa-01.jpg';">
           </a>
         </div>
 
@@ -193,22 +196,28 @@
 
       if (!thumbsWrap || !colorButtons.length) return;
 
-      const fallbackImage = 'images/ella/dark-legacy-01.jpg';
+      const fallbackImage = 'images/ella/aura-rosa-01.jpg';
       // Convención para que solo subas tus fotos:
-      // images/ella/aura-blanco-01.jpg, aura-blanco-02.jpg, aura-blanco-03.jpg ...
+      // images/ella/aura-azul-aqua-01.jpg, aura-azul-aqua-02.jpg, aura-azul-aqua-03.jpg ...
       // images/ella/aura-amarillo-01.jpg, aura-amarillo-02.jpg, aura-amarillo-03.jpg ...
-      // images/ella/aura-gris-01.jpg, aura-gris-02.jpg, aura-gris-03.jpg ...
+      // images/ella/aura-blanco-01.jpg, aura-blanco-02.jpg, aura-blanco-03.jpg ...
       // images/ella/aura-rosa-01.jpg, aura-rosa-02.jpg, aura-rosa-03.jpg ...
+      // images/ella/aura-rosa-palo-01.jpg, aura-rosa-palo-02.jpg, aura-rosa-palo-03.jpg ...
+      // images/ella/aura-negro-01.jpg, aura-negro-02.jpg, aura-negro-03.jpg ...
+      // images/ella/aura-gris-01.jpg, aura-gris-02.jpg, aura-gris-03.jpg ...
       // Puedes subir 4, 8, 12, etc. (se detectan automáticamente en orden).
       const imageCacheByColor = {};
       let colorRequestId = 0;
-      let currentColor = 'blanco';
+      let currentColor = 'rosa';
 
       const colorMeta = {
-        blanco: { label: 'Blanco' },
+        'azul-aqua': { label: 'Azul Aqua' },
         amarillo: { label: 'Amarillo' },
-        gris: { label: 'Gris' },
-        rosa: { label: 'Rosa' }
+        blanco: { label: 'Blanco' },
+        rosa: { label: 'Rosa' },
+        'rosa-palo': { label: 'Rosa Palo' },
+        negro: { label: 'Negro' },
+        gris: { label: 'Gris' }
       };
 
       const unavailableByColor = {
@@ -370,7 +379,7 @@
       };
 
       colorButtons.forEach(button => {
-        button.addEventListener('click', () => setColor(button.dataset.color || 'blanco'));
+        button.addEventListener('click', () => setColor(button.dataset.color || 'rosa'));
       });
 
       sizeButtons.forEach(button => {
@@ -383,10 +392,10 @@
       buyNow?.addEventListener('click', (event) => {
         if (buyNow.getAttribute('aria-disabled') !== 'true') return;
         event.preventDefault();
-        window.alert('La talla S en color blanco ya no tiene stock disponible.');
+        window.alert('La talla S en color blanco está agotada.');
       });
 
-      const initialColor = colorButtons.find(button => button.classList.contains('is-active'))?.dataset.color || 'blanco';
+      const initialColor = colorButtons.find(button => button.classList.contains('is-active'))?.dataset.color || 'rosa';
       setColor(initialColor);
     })();
   </script>
